@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ôn Trắc Nghiệm - Một Số Tôn Giáo Ở Việt Nam (Bài 3)</title>
+  <!-- Font support & Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      min-height: 100vh;
+    }
+    .option-card:hover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .option-card.selected {
+      border-color: #2563eb;
+      background-color: #dbeafe;
+    }
+    .correct-ans {
+      background-color: #d1fae5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+    }
+    .wrong-ans {
+      background-color: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #991b1b !important;
+    }
+  </style>
+</head>
+<body class="py-6 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-screen">
+
+  <div class="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+    
+    <!-- HEADER -->
+    <header class="bg-indigo-700 text-white p-6 text-center relative">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Ôn Trắc Nghiệm Tôn Giáo</h1>
+      <p class="text-indigo-200 text-sm sm:text-base mt-1">Bài 3: Một số tôn giáo ở Việt Nam</p>
+      <div id="quiz-badge" class="mt-2 inline-block bg-indigo-800 text-indigo-100 text-xs px-3 py-1 rounded-full font-medium">
+        Tổng số: <span id="total-q-count">0</span> câu hỏi
+      </div>
+    </header>
+
+    <!-- STEP 1: WELCOME & CONFIG -->
+    <section id="step-setup" class="p-6 sm:p-8">
+      <div class="space-y-6">
+        <div>
+          <label for="student-name" class="block text-sm font-semibold text-gray-700 mb-2">Họ và tên người làm bài <span class="text-red-500">*</span></label>
+          <input type="text" id="student-name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="Nhập họ và tên của bạn...">
+          <p id="name-error" class="text-red-500 text-xs mt-1 hidden">Vui lòng nhập họ và tên trước khi bắt đầu!</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Tùy chọn chế độ làm bài</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-indigo-500 transition flex items-center space-x-3 bg-gray-50 hover:bg-indigo-50">
+              <input type="radio" name="quiz-mode" value="20" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+              <div>
+                <div class="font-semibold text-gray-800">Làm ngẫu nhiên 20 câu</div>
+                <div class="text-xs text-gray-500">Phù hợp kiểm tra nhanh</div>
+              </div>
+            </label>
+
+            <label class="border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-indigo-500 transition flex items-center space-x-3 bg-gray-50 hover:bg-indigo-50">
+              <input type="radio" name="quiz-mode" value="all" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500">
+              <div>
+                <div class="font-semibold text-gray-800">Làm tất cả câu hỏi</div>
+                <div class="text-xs text-gray-500">Ôn tập toàn bộ chương</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <button id="btn-start" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center justify-center space-x-2">
+          <span>Bắt Đầu Làm Bài</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- STEP 2: QUIZ INTERFACE -->
+    <section id="step-quiz" class="p-6 sm:p-8 hidden">
+      <!-- Status bar -->
+      <div class="flex items-center justify-between pb-4 mb-6 border-b border-gray-200">
+        <div class="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg">
+          Câu <span id="current-q-num">1</span> / <span id="total-q-session">20</span>
+        </div>
+        <div class="flex items-center space-x-2 text-gray-700 font-mono text-sm bg-gray-100 px-3 py-1.5 rounded-lg">
+          <i class="fa-regular fa-clock text-indigo-600"></i>
+          <span id="timer-display">00:00</span>
+        </div>
+      </div>
+
+      <!-- Question Text -->
+      <div class="mb-6">
+        <h2 id="question-text" class="text-lg sm:text-xl font-bold text-gray-800 leading-snug">
+          Nội dung câu hỏi ở đây?
+        </h2>
+      </div>
+
+      <!-- Options Container -->
+      <div id="options-container" class="space-y-3 mb-8">
+        <!-- Dynamically injected options -->
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+        <button id="btn-prev" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-600 font-medium hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition">
+          <i class="fa-solid fa-chevron-left mr-1"></i> Câu Trước
+        </button>
+        <button id="btn-next" class="px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow transition">
+          Câu Tiếp <i class="fa-solid fa-chevron-right ml-1"></i>
+        </button>
+        <button id="btn-submit" class="hidden px-5 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 shadow transition">
+          Nộp Bài <i class="fa-solid fa-check ml-1"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- STEP 3: RESULT & REVIEW -->
+    <section id="step-result" class="p-6 sm:p-8 hidden">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-50 text-indigo-600 text-3xl mb-3 shadow-inner">
+          <i class="fa-solid fa-award"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800">Kết Quả Làm Bài</h2>
+        <p class="text-gray-600 text-sm mt-1">Họ và tên: <span id="result-student-name" class="font-semibold text-gray-800"></span></p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+        <div class="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
+          <div class="text-xs text-gray-500 uppercase font-semibold">Điểm Số</div>
+          <div id="result-score" class="text-2xl font-extrabold text-indigo-600 mt-1">0/20</div>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
+          <div class="text-xs text-gray-500 uppercase font-semibold">Tỷ Lệ Đúng</div>
+          <div id="result-percent" class="text-2xl font-extrabold text-emerald-600 mt-1">0%</div>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-xl text-center border border-gray-100 col-span-2 sm:col-span-1">
+          <div class="text-xs text-gray-500 uppercase font-semibold">Thời Gian</div>
+          <div id="result-time" class="text-2xl font-extrabold text-gray-700 mt-1">00:00</div>
+        </div>
+      </div>
+
+      <!-- Wrong Questions Review -->
+      <div id="review-container" class="mt-8 pt-6 border-t border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+          <i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i> Các Câu Làm Sai / Bỏ Qua
+        </h3>
+        <div id="wrong-questions-list" class="space-y-4">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-center">
+        <button id="btn-restart" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow transition">
+          Làm Bài Khác
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // BANK OF QUESTION DATA (Bài 3: Tôn giáo ở Việt Nam)
+    const questionBank = [
+      {
+        question: "Đẳng cấp nào trong chế độ Vác Na ở Ấn Độ cổ đại chiếm đại đa số và ở vị trí tận cùng xã hội?",
+        options: [
+          "Tăng lữ, tu sĩ (Bà La Môn)",
+          "Vua quan, quý tộc (Sát Đế Lị)",
+          "Thương nhân, thợ thủ công (Vệ Xá)",
+          "Nô lệ, tù binh (Thủ Đà La)"
+        ],
+        answer: 3
+      },
+      {
+        question: "Người sáng lập ra Phật giáo là ai?",
+        options: [
+          "Tất Đạt Đa (Siddhartha)",
+          "A Dục (Asoka)",
+          "Mục Kiền Liên",
+          "Trần Nhân Tông"
+        ],
+        answer: 0
+      },
+      {
+        question: "Theo Phật giáo Bắc tông, Tất Đạt Đa thành đạo dưới gốc cây Tất Bạt La sau bao nhiêu ngày đêm nhập thiền?",
+        options: [
+          "30 ngày đêm",
+          "45 ngày đêm",
+          "49 ngày đêm",
+          "60 ngày đêm"
+        ],
+        answer: 2
+      },
+      {
+        question: "Nội dung nào sau đây KHÔNG thuộc Tứ diệu đế của Phật giáo?",
+        options: [
+          "Khổ đế",
+          "Tập đế",
+          "Thập nhị nhân duyên",
+          "Đạo đế"
+        ],
+        answer: 2
+      },
+      {
+        question: "Theo giáo luật Phật giáo, Ngũ giới dành cho tín đồ bao gồm những quy định nào?",
+        options: [
+          "Không sát sinh, không trộm cướp, không tà dâm, không dối trá, không uống rượu",
+          "Không sát sinh, không trộm cướp, không tà dâm, không ca hát, không uống rượu",
+          "Không sát sinh, không ăn trái giờ, không tà dâm, không dối trá, không uống rượu",
+          "Không sát sinh, không trộm cướp, không nằm giường cao, không dối trá, không uống rượu"
+        ],
+        answer: 0
+      },
+      {
+        question: "Năm 1299, vị vua nào đã từ bỏ ngai vàng để sáng lập ra Thiền phái Trúc Lâm Yên Tử?",
+        options: [
+          "Trần Thái Tông",
+          "Trần Thánh Tông",
+          "Trần Nhân Tông",
+          "Lý Thái Tổ"
+        ],
+        answer: 2
+      },
+      {
+        question: "Đến năm 2024, Giáo hội Phật giáo Việt Nam có khoảng bao nhiêu tín đồ?",
+        options: [
+          "Hơn 5 triệu tín đồ",
+          "Hơn 10 triệu tín đồ",
+          "Hơn 15 triệu tín đồ",
+          "Hơn 20 triệu tín đồ"
+        ],
+        answer: 2
+      },
+      {
+        question: "Kitô giáo xuất hiện vào thời gian nào và ở đâu?",
+        options: [
+          "Đầu thế kỷ VI tr.CN tại Ấn Độ",
+          "Đầu Công nguyên tại xứ Palestine",
+          "Thế kỷ XVI tại Đức",
+          "Thế kỷ VII tại bán đảo Arập"
+        ],
+        answer: 1
+      },
+      {
+        question: "Cuộc đại phân liệt năm 1054 đã chia rẽ Kitô giáo thành hai giáo hội chính nào?",
+        options: [
+          "Công giáo và Tin lành",
+          "Công giáo và Chính thống giáo",
+          "Tin lành và Anh giáo",
+          "Chính thống giáo và Tin lành"
+        ],
+        answer: 1
+      },
+      {
+        question: "Bộ Kinh thánh của Công giáo bao gồm hai phần nào và có tổng cộng bao nhiêu quyển?",
+        options: [
+          "Cựu ước (39 quyển) và Tân ước (27 quyển)",
+          "Cựu ước (46 quyển) và Tân ước (27 quyển)",
+          "Cựu ước (46 quyển) và Tân ước (24 quyển)",
+          "Cựu ước (39 quyển) và Tân ước (24 quyển)"
+        ],
+        answer: 1
+      },
+      {
+        question: "Phép Bí tích nào được coi là quan trọng nhất trong 7 phép Bí tích của Công giáo?",
+        options: [
+          "Bí tích rửa tội",
+          "Bí tích thêm sức",
+          "Bí tích giải tội",
+          "Bí tích thánh thể"
+        ],
+        answer: 3
+      },
+      {
+        question: "Hiện nay, Giáo hội Công giáo Việt Nam được chia thành bao nhiêu giáo phận và mấy tổng giáo phận?",
+        options: [
+          "25 giáo phận, 3 tổng giáo phận",
+          "27 giáo phận, 3 tổng giáo phận",
+          "30 giáo phận, 4 tổng giáo phận",
+          "27 giáo phận, 4 tổng giáo phận"
+        ],
+        answer: 1
+      },
+      {
+        question: "Đạo Tin lành ra đời vào thời gian nào và khởi nguồn từ sự kiện gì?",
+        options: [
+          "Đầu thế kỷ XVI, từ Phong trào Cải cách tôn giáo ở châu Âu",
+          "Đầu thế kỷ I, từ sự xuất hiện của Chúa Giêsu",
+          "Thế kỷ VII, từ phong trào Thần linh học",
+          "Thế kỷ XIX, từ phong trào Thức tỉnh đức tin"
+        ],
+        answer: 0
+      },
+      {
+        question: "Nhà cải cách tôn giáo nào đã công bố 'Chín mươi lăm luận đề' vào năm 1517 tại Đức?",
+        options: [
+          "John Calvin",
+          "Ulrich Zwingli",
+          "Martin Luther",
+          "Charles Finney"
+        ],
+        answer: 2
+      },
+      {
+        question: "Khác với Công giáo, Đạo Tin lành chỉ thực hiện mấy thánh lễ?",
+        options: [
+          "1 thánh lễ (Rửa tội)",
+          "2 thánh lễ (Báp têm và Tiệc thánh)",
+          "3 thánh lễ (Rửa tội, Giải tội, Thánh thể)",
+          "7 thánh lễ"
+        ],
+        answer: 1
+      },
+      {
+        question: "Đạo Tin lành chính thức du nhập vào Việt Nam vào năm nào?",
+        options: [
+          "Năm 1533",
+          "Năm 1911",
+          "Năm 1927",
+          "Năm 1954"
+        ],
+        answer: 1
+      },
+      {
+        question: "Hồi giáo ra đời vào thế kỷ nào và do ai sáng lập?",
+        options: [
+          "Thế kỷ VI tr.CN do Tất Đạt Đa sáng lập",
+          "Thế kỷ I do Chúa Giêsu sáng lập",
+          "Thế kỷ VII do Thiên sứ Muhammad sáng lập",
+          "Thế kỷ XVI do Martin Luther sáng lập"
+        ],
+        answer: 2
+      },
+      {
+        question: "Kinh sách tối cao và thiêng liêng nhất của Hồi giáo là gì?",
+        options: [
+          "Kinh Tora",
+          "Kinh Qur'an (Koran)",
+          "Sách Hadith",
+          "Luật Shariah"
+        ],
+        answer: 1
+      },
+      {
+        question: "Nội dung nào sau đây KHÔNG nằm trong 5 trụ cột (nghĩa vụ) cơ bản của tín đồ Hồi giáo?",
+        options: [
+          "Cầu nguyện 5 lần mỗi ngày (Salat)",
+          "Nhịn chay trong tháng Ramadan (Sawm)",
+          "Hành hương đến thánh địa Mecca (Hajj)",
+          "Ăn chay trường và xuất gia tu hành"
+        ],
+        answer: 3
+      },
+      {
+        question: "Cộng đồng Hồi giáo Chăm ở Việt Nam được chia thành 2 nhóm chính nào?",
+        options: [
+          "Sunni và Shia",
+          "Hồi giáo Bàni và Hồi giáo Islam",
+          "Hanafi và Shafi'i",
+          "Kharijites và Sunni"
+        ],
+        answer: 1
+      },
+      {
+        question: "Lễ Khai đạo chính thức của đạo Cao Đài được tổ chức vào ngày tháng năm nào (dương lịch) và tại đâu?",
+        options: [
+          "12/2/1926 tại Sài Gòn",
+          "20/11/1926 tại chùa Gò Kén (Tây Ninh)",
+          "29/9/1926 tại Bến Tre",
+          "14/11/1992 tại Tây Ninh"
+        ],
+        answer: 1
+      },
+      {
+        question: "Biểu tượng thờ phụng cốt lõi tượng trưng cho Đấng Tối cao trong đạo Cao Đài là gì?",
+        options: [
+          "Tượng Phật Thích Ca",
+          "Thánh giá",
+          "Thiên nhãn (con mắt trái)",
+          "Bảng chữ Arập"
+        ],
+        answer: 2
+      },
+      {
+        question: "Cơ quan hành pháp của đạo Cao Đài do các chức sắc điều hành được gọi là gì?",
+        options: [
+          "Bát Quái đài",
+          "Hiệp Thiên đài",
+          "Cửu Trùng đài",
+          "Hội Nhơn sanh"
+        ],
+        answer: 2
+      },
+      {
+        question: "Phật giáo Hòa Hảo do ai sáng lập và vào thời gian nào?",
+        options: [
+          "Ngô Văn Chiêu sáng lập năm 1926",
+          "Huỳnh Phú Sổ sáng lập ngày 4/7/1939",
+          "Trần Nhân Tông sáng lập năm 1299",
+          "Lê Quang Liêm sáng lập năm 1946"
+        ],
+        answer: 1
+      },
+      {
+        question: "Cốt lõi giáo lý của Phật giáo Hòa Hảo là gì?",
+        options: [
+          "Tam quy Ngũ giới",
+          "Sống Phúc âm giữa lòng dân tộc",
+          "Học Phật, tu Nhân",
+          "Tứ đại điều quy"
+        ],
+        answer: 2
+      },
+      {
+        question: "Trọng tâm của phần 'tu Nhân' trong Phật giáo Hòa Hảo là thực hành nghĩa vụ gì?",
+        options: [
+          "Tứ diệu đế",
+          "Tứ đại trọng ân",
+          "Ngũ giới cấm",
+          "Bát quan trai giới"
+        ],
+        answer: 1
+      }
+    ];
+
+    // APP STATE
+    let currentQuestions = [];
+    let userAnswers = [];
+    let currentIdx = 0;
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let studentName = "";
+
+    // DOM ELEMENTS
+    const totalQCountEl = document.getElementById('total-q-count');
+    const stepSetup = document.getElementById('step-setup');
+    const stepQuiz = document.getElementById('step-quiz');
+    const stepResult = document.getElementById('step-result');
+    const studentNameInput = document.getElementById('student-name');
+    const nameError = document.getElementById('name-error');
+    const btnStart = document.getElementById('btn-start');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const currentQNumEl = document.getElementById('current-q-num');
+    const totalQSessionEl = document.getElementById('total-q-session');
+    const timerDisplay = document.getElementById('timer-display');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnRestart = document.getElementById('btn-restart');
+
+    // INITIALIZE
+    totalQCountEl.textContent = questionBank.length;
+
+    // SHUFFLE ARRAY HELPER
+    function shuffle(array) {
+      let arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // START QUIZ
+    btnStart.addEventListener('click', () => {
+      studentName = studentNameInput.value.trim();
+      if (!studentName) {
+        nameError.classList.remove('hidden');
+        return;
+      }
+      nameError.classList.add('hidden');
+
+      const mode = document.querySelector('input[name="quiz-mode"]:checked').value;
+      let rawQuestions = [...questionBank];
+
+      if (mode === '20') {
+        rawQuestions = shuffle(rawQuestions).slice(0, 20);
+      } else {
+        rawQuestions = shuffle(rawQuestions);
+      }
+
+      // Shuffle options for each question while preserving correct answer
+      currentQuestions = rawQuestions.map(q => {
+        let opts = q.options.map((opt, idx) => ({ text: opt, isCorrect: idx === q.answer }));
+        opts = shuffle(opts);
+        return {
+          question: q.question,
+          options: opts.map(o => o.text),
+          answer: opts.findIndex(o => o.isCorrect)
+        };
+      });
+
+      userAnswers = new Array(currentQuestions.length).fill(null);
+      currentIdx = 0;
+      secondsElapsed = 0;
+
+      totalQSessionEl.textContent = currentQuestions.length;
+      stepSetup.classList.add('hidden');
+      stepQuiz.classList.remove('hidden');
+
+      startTimer();
+      renderQuestion();
+    });
+
+    // TIMER FUNCTION
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+        const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+        timerDisplay.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    // RENDER QUESTION
+    function renderQuestion() {
+      const q = currentQuestions[currentIdx];
+      currentQNumEl.textContent = currentIdx + 1;
+      questionText.textContent = `${currentIdx + 1}. ${q.question}`;
+
+      optionsContainer.innerHTML = '';
+      q.options.forEach((optText, idx) => {
+        const isSelected = userAnswers[currentIdx] === idx;
+        const optCard = document.createElement('div');
+        optCard.className = `option-card border border-gray-200 rounded-xl p-4 cursor-pointer transition flex items-start space-x-3 ${isSelected ? 'selected' : 'bg-white'}`;
+        
+        const optionChar = String.fromCharCode(65 + idx);
+        optCard.innerHTML = `
+          <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center font-semibold text-xs text-gray-600 flex-shrink-0 mt-0.5 ${isSelected ? 'border-indigo-600 bg-indigo-600 text-white' : ''}">
+            ${optionChar}
+          </div>
+          <div class="text-gray-800 text-sm sm:text-base leading-relaxed">${optText}</div>
+        `;
+
+        optCard.addEventListener('click', () => {
+          userAnswers[currentIdx] = idx;
+          renderQuestion();
+        });
+
+        optionsContainer.appendChild(optCard);
+      });
+
+      // Update Navigation buttons
+      btnPrev.disabled = currentIdx === 0;
+      if (currentIdx === currentQuestions.length - 1) {
+        btnNext.classList.add('hidden');
+        btnSubmit.classList.remove('hidden');
+      } else {
+        btnNext.classList.remove('hidden');
+        btnSubmit.classList.add('hidden');
+      }
+    }
+
+    // NAVIGATION EVENT LISTENERS
+    btnPrev.addEventListener('click', () => {
+      if (currentIdx > 0) {
+        currentIdx--;
+        renderQuestion();
+      }
+    });
+
+    btnNext.addEventListener('click', () => {
+      if (currentIdx < currentQuestions.length - 1) {
+        currentIdx++;
+        renderQuestion();
+      }
+    });
+
+    btnSubmit.addEventListener('click', finishQuiz);
+
+    // FINISH AND SHOW RESULT
+    function finishQuiz() {
+      clearInterval(timerInterval);
+      stepQuiz.classList.add('hidden');
+      stepResult.classList.remove('hidden');
+
+      let correctCount = 0;
+      const wrongList = [];
+
+      currentQuestions.forEach((q, idx) => {
+        const uAns = userAnswers[idx];
+        if (uAns === q.answer) {
+          correctCount++;
+        } else {
+          wrongList.push({
+            qNum: idx + 1,
+            question: q.question,
+            options: q.options,
+            userAns: uAns,
+            correctAns: q.answer
+          });
+        }
+      });
+
+      const total = currentQuestions.length;
+      const percent = Math.round((correctCount / total) * 100);
+      const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+      const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+
+      document.getElementById('result-student-name').textContent = studentName;
+      document.getElementById('result-score').textContent = `${correctCount}/${total}`;
+      document.getElementById('result-percent').textContent = `${percent}%`;
+      document.getElementById('result-time').textContent = `${mins}:${secs}`;
+
+      // Render Wrong Questions
+      const wrongContainer = document.getElementById('wrong-questions-list');
+      wrongContainer.innerHTML = '';
+
+      if (wrongList.length === 0) {
+        wrongContainer.innerHTML = `<div class="p-4 bg-emerald-50 text-emerald-700 rounded-xl text-center font-medium">Xuất sắc! Bạn đã trả lời đúng tất cả các câu hỏi.</div>`;
+      } else {
+        wrongList.forEach(item => {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'border border-gray-200 rounded-xl p-4 bg-white space-y-2';
+          
+          let userAnsText = item.userAns !== null ? item.options[item.userAns] : 'Chưa chọn đáp án';
+          let correctAnsText = item.options[item.correctAns];
+
+          itemEl.innerHTML = `
+            <div class="font-bold text-gray-800 text-sm sm:text-base">Câu ${item.qNum}: ${item.question}</div>
+            <div class="text-xs sm:text-sm p-2.5 rounded-lg border wrong-ans">
+              <span class="font-semibold">Bạn chọn:</span> ${userAnsText}
+            </div>
+            <div class="text-xs sm:text-sm p-2.5 rounded-lg border correct-ans">
+              <span class="font-semibold">Đáp án đúng:</span> ${correctAnsText}
+            </div>
+          `;
+          wrongContainer.appendChild(itemEl);
+        });
+      }
+    }
+
+    // RESTART
+    btnRestart.addEventListener('click', () => {
+      stepResult.classList.add('hidden');
+      stepSetup.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
